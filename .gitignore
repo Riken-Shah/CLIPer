@@ -1,0 +1,6 @@
+# Zilliz Cloud Config
+config.ini
+venv*
+node_modules
+supabase.ini
+.cache/*
