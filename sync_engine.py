@@ -54,7 +54,7 @@ class SyncEngine:
         ), f"Image folder {self.images_path.resolve().absolute()} does not exist"
 
         # Local JSON DB which keeps track of all the images
-        self.__db_client = LocalDB(self.root_path / "db.json")
+        self.__db_client = LocalDB(self.root_path / "db_z.json")
         self.__table = self.__db_client.get_or_create_table("images")
         self.__internal_table = self.__db_client.get_or_create_table("internal")
 

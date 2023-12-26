@@ -16,7 +16,7 @@ class Milvus:
                             user=user,
                             password=password)
 
-        self.DIM = 768  # dimension of vector
+        self.DIM = 512  # dimension of vector
         self._collection = self.setup_collection(collection_name)
         print("Successfully connected to Milvus")
 
@@ -60,6 +60,7 @@ class Milvus:
         self._collection.delete(f"fname not in {file_paths}")
 
     def upsert(self, records):
+        print("upserted records to milvus", len(records))
         self._collection.upsert(records)
 
     def save(self):

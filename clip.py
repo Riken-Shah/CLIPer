@@ -84,8 +84,8 @@ class ImagesIndexer:
     def load_if_not_loaded(self):
         if self.model is None:
             print("Loading CLIP model...")
-            # model, _, preprocess = open_clip.create_model_and_transforms("ViT-B-32", pretrained="openai", cache_dir=self.cache_dir, device="mps")
-            model, _, preprocess = open_clip.create_model_and_transforms("ViT-L-14", pretrained="openai", cache_dir=self.cache_dir, device=self.device)
+            model, _, preprocess = open_clip.create_model_and_transforms("ViT-B-32", pretrained="openai", cache_dir=self.cache_dir, device=self.device)
+            # model, _, preprocess = open_clip.create_model_and_transforms("ViT-L-14", pretrained="openai", cache_dir=self.cache_dir, device=self.device)
             # ViT - L - 14 / openai
             self.model = model.to(self.device)
             self.model.eval()
@@ -137,7 +137,7 @@ class ImagesIndexer:
         ds = ImagesDataset(
             self.images_path, images_files, self.preprocess_image, self.input_resolution)
         dl = DataLoader(
-            ds, batch_size=32, shuffle=False, num_workers=os.cpu_count() // 4
+            ds, batch_size=64, shuffle=False, num_workers=os.cpu_count() // 4
         )
         print("Building index with CLIP. It may take a while...")
 
@@ -153,13 +153,13 @@ class ImagesIndexer:
 
             emb_images /= np.linalg.norm(emb_images, axis=-1, keepdims=True)
 
-            to_pil_transform = transforms.ToPILImage()
+            # to_pil_transform = transforms.ToPILImage()
 
             batch_records = []
             for fname, image_tensor, emb in zip(fnames, images, emb_images):
                 image = Image.open(self.images_path / fname)
                 # image = to_pil_transform(image_tensor)
-                asyncio.run(generate_thumbnail(fname, image))
+                # asyncio.run(generate_thumbnail(fname, image))
                 caption, tags = get_caption_and_tags(image)
                 width, height = image.size
                 batch_records.append(create_record(fname, width, height, emb, caption, tags))
@@ -168,14 +168,17 @@ class ImagesIndexer:
             return batch_records
 
         records = []
-        with ThreadPoolExecutor() as executor:
-            futures = []
-            for batch in tqdm(dl, file=sys.stdout, bar_format="{l_bar}{bar}{r_bar}"):
-                future = executor.submit(process_batch, batch)
-                futures.append(future)
+        for batch in tqdm(dl, file=sys.stdout, bar_format="{l_bar}{bar}{r_bar}"):
+            records.extend(process_batch(batch))
 
-            for future in tqdm(futures, file=sys.stdout, bar_format="{l_bar}{bar}{r_bar}"):
-                records.extend(future.result())
+        # with ThreadPoolExecutor() as executor:
+        #     futures = []
+        #     for batch in tqdm(dl, file=sys.stdout, bar_format="{l_bar}{bar}{r_bar}"):
+        #         future = executor.submit(process_batch, batch)
+        #         futures.append(future)
+        #
+        #     for future in tqdm(futures, file=sys.stdout, bar_format="{l_bar}{bar}{r_bar}"):
+        #         records.extend(future.result())
 
         return records
 

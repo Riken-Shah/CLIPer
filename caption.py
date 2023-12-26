@@ -17,7 +17,7 @@ class ImageCaption:
         config.blip_num_beams = 64
         config.chunk_size = 2048
         config.flavor_intermediate_count = 1024
-        self.ci_vitl = Interrogator(config)
+        # self.ci_vitl = Interrogator(config)
 
     def get_caption_and_tags(self, image):
         # conditional image captioning
@@ -28,7 +28,8 @@ class ImageCaption:
         # blob = TextBlob(caption)
         # print(blob.noun_phrases)
         # print(caption)
-        caption = self.ci_vitl.interrogate_fast(image)
+        # caption = self.ci_vitl.interrogate_fast(image)
+        caption = ""
         return caption, caption.split(",")
 
 # print(ImageCaption("./.cache").get_caption_and_tags(PIL.Image.open("/Volumes/SSD/Backup 16-12-2023/Document/fabric database/12_orginal.jpeg")))
